@@ -1,26 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import './index.css';
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import NavigationComponent from './navigation/NavigationComponent';
+import Footer from './navigation/Footer';
+import Login from './user/Login';
+import UserRegistration from './user/Registration';
+import ContactFormComponent from './contact/ContactFormComponent';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+class App extends Component {
+  render(props) {
+    return (
+        <BrowserRouter>
+            <div>
+            <NavigationComponent/>
+            <Switch>
+                <Route exact path="/login" component={Login} />
+                <Route exact path="/userregistration" component={UserRegistration} />
+                <Route path='/contact/ui/:stuffId' component={ContactFormComponent} />
+            </Switch>
+            <Footer/>
+            </div>
+        </BrowserRouter>
+    );
+  }
 }
 
 export default App;
