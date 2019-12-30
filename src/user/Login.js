@@ -5,6 +5,10 @@ import Modal from "react-bootstrap/Modal";
 import {Redirect} from 'react-router-dom';
 import axios from "axios/index";
 import {Link} from 'react-router-dom';
+import { withSwalInstance } from 'sweetalert2-react';
+import swal from 'sweetalert2';
+ 
+const SweetAlert = withSwalInstance(swal);
 
 export default class Login extends React.Component {
     constructor(props, context) {
@@ -15,6 +19,7 @@ export default class Login extends React.Component {
 
         this.state = {
             show: true,
+            showAlert: false,
             username: '',
             password: '',
             user: '',
@@ -27,15 +32,18 @@ export default class Login extends React.Component {
     }
 
     axiosGetUserData() {
-            axios({
-                      method: 'post',
-                      url: '/login',
-                      params: {
-                          username: this.state.username,
-                          password: this.state.password
-                      },
-            headers: {'Content-Type': 'application/json;charset=utf-8'}
-        })
+  //  axios.defaults.baseURL = "http://localhost:9999";
+      //  axios.defaults.port = 9999;
+      axios({
+        method: 'post',
+        //url: '/login',
+        url: '/user/signin',
+        params: {
+            username: this.state.username,
+            password: this.state.password
+        },
+        headers: {'Content-Type': 'application/json;charset=utf-8'}
+})
             .then((response) => {
                 console.log(response.status);
                 if(response.status=='401'){
@@ -43,13 +51,14 @@ export default class Login extends React.Component {
                 }
                 else {
                     this.setState({user: response.data});
-                    sessionStorage.setItem('user', JSON.stringify(this.state.user.id));
+                    sessionStorage.setItem('token', response.data);
                     this.setState({redirect: true})
                     console.log(this.state.user);
                 }
             })
             .catch((error) => {
-                alert('your password or username is incorrect!');
+                //alert('your password or username is incorrect!');
+                this.setState({showAlert: true});
                 console.log(error);
             });
     }
@@ -67,7 +76,7 @@ export default class Login extends React.Component {
 
     renderRedirect = () => {
         if (this.state.redirect) {
-            return (<Redirect to={{pathname: '/events'}}/>)
+           return (<Redirect to={{pathname: '/stuff'}}/>)
         }
     }
 
@@ -84,28 +93,34 @@ export default class Login extends React.Component {
             <>
                 <Modal show={this.state.show} onHide={this.handleClose}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Prisijungimas</Modal.Title>
+                        <Modal.Title>Login</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <div className="Login">
                             <form onSubmit={this.handleSubmit}>
+                            <SweetAlert
+                                        show={this.state.showAlert}
+                                        title='Your password or username is incorrect'
+                                        text=''
+                                        onConfirm={() => this.setState({ showAlert: false })}
+                                     />
                                 <Form.Group controlId="username">
-                                    <Form.Label>Vartotojo vardas</Form.Label>
+                                    <Form.Label>Username</Form.Label>
                                     <Form.Control
                                         autoFocus
                                         type="username"
                                         value={this.state.username}
                                         onChange={this.handleChange}
-                                        placeholder="vartotojo vardas"
+                                        placeholder="username"
                                     />
                                 </Form.Group>
                                 <Form.Group controlId="password" bsSize="large">
-                                    <Form.Label>Slaptažodis</Form.Label>
+                                    <Form.Label>Password</Form.Label>
                                     <Form.Control
                                         value={this.state.password}
                                         onChange={this.handleChange}
                                         type="password"
-                                        placeholder="slaptažodis"
+                                        placeholder="password"
                                     />
                                 </Form.Group>
                                 <Button
@@ -116,10 +131,9 @@ export default class Login extends React.Component {
                                     type="submit"
                                     active
                                 >
-                                    Prisijungti
+                                    Login
                                 </Button>
                                 <br />
-                                <div className="col-md-7 offset-3">------------arba------------</div>
                                 <br />
                                 <Link to={"/userregistration"}>
                                     <Button
@@ -128,7 +142,7 @@ export default class Login extends React.Component {
                                         bsSize="large"
                                         active
                                     >
-                                        Registruotis
+                                        Register
                                     </Button>
                                 </Link>
                             </form>

@@ -4,7 +4,10 @@ import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import {Redirect} from 'react-router-dom';
 import axios from "axios";
-import {Link} from 'react-router-dom';
+import { withSwalInstance } from 'sweetalert2-react';
+import swal from 'sweetalert2';
+ 
+const SweetAlert = withSwalInstance(swal);
 
 export default class ContactFormComponent extends React.Component {
     constructor(props, context) {
@@ -12,16 +15,17 @@ export default class ContactFormComponent extends React.Component {
 
         this.state = {
             id: "",
-            message: ""
-
+            message: "",
+            submitted: false,
+            showAlertSuccess: false,
+            showAlertFailure: false,
+            erors: false
         };
     }
 
     componentDidMount() {
         const { stuffId } = this.props.match.params;
-        console.log(stuffId);
         this.setState({id: stuffId});
-        console.log(this.state.id);
     }
 
 
@@ -32,24 +36,17 @@ export default class ContactFormComponent extends React.Component {
                 message: this.state.message
         },
         headers: {'Content-Type': 'application/json;charset=utf-8'}
+    })  
+    .catch((error) => {
+        this.setState({showAlertFailure: true, errors: true });
     })
-    //     axios({
-    //               //baseURL: 'http://localhost:9999',
-    //               method: 'get',
-    //               url: '/sendmessage',
-    //               params: {
-    //                   id: this.state.id,
-    //                   message: this.state.message
-    //               },
-    //     headers: {'Content-Type': 'application/json;charset=utf-8'}
-    // })
         .then((response) => {
-            console.log(response.status);
-        })
-        .catch((error) => {
-            alert('your message was not sent');
-            console.log(error);
+            if(!this.state.errors){
+                this.setState({ submitted : true, showAlertSucess: true });
+                this.renderRedirect();
+            }
         });
+      
 }
 
 handleChange = event => {
@@ -60,15 +57,16 @@ handleChange = event => {
 
 handleSubmit = event => {
     event.preventDefault();
+    this.setState({ errors : false });
     this.axiosSendMessage();
+
 }
 
 renderRedirect = () => {
-    if (this.state.redirect) {
-        return (<Redirect to={{pathname: '/events'}}/>)
+    if (this.state.submitted) {
+        return (<Redirect to={{pathname: '/home'}}/>)
     }
 }
-
 
     render() {
         return (
@@ -86,6 +84,16 @@ renderRedirect = () => {
                         onChange={this.handleChange}
                         placeholder="How owner can contact you?"
                     />
+                     <SweetAlert
+                show={this.state.showAlertSucess}
+                    title='Message sent succesfully'
+                    onConfirm={() => this.setState({ showAlertSuccess: false })}
+                    />
+                     <SweetAlert
+                show={this.state.showAlertFailure}
+                    title='Message was not sent'
+                    onConfirm={() => this.setState({ showAlertFailure: false })}
+                    />
                 </Form.Group>
                 <Button
                     block
@@ -98,6 +106,7 @@ renderRedirect = () => {
                 </Button>
                 <br />
             </form>
+           
             {this.renderRedirect()}
         </div>
         </Col>

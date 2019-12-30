@@ -15,29 +15,33 @@ class NavigationComponent extends React.Component {
         return sessionStorage.clear();
     }
 
+    componentWillUpdate(){
+
+    }
+    
     render(){
-        var manoBilietaiLink = <p/>
+        var myStuffLink = <p/>
         var loginlogout = "";
-        if(!sessionStorage.getItem("user")) {
+        if(!sessionStorage.getItem("token")) {
             loginlogout =   <Nav className="ml-auto">
                     <Link to="/login" className="ml-auto">Login</Link>
                 </Nav>
         }
         else {
             loginlogout =   <Nav className="ml-auto">
-                <Link to='/logout' onClick={this.handleClick} className="ml-auto">Atsijungti</Link>
+                <Link to='/logout' onClick={this.handleClick} className="ml-auto">Logout</Link>
             </Nav>;
 
-            manoBilietaiLink=<Link to="/tickets">Mano bilietai</Link>
+            myStuffLink=<Link to="/stuff">My stuff</Link>
         }
 
     return (
             <Navbar className="mynav" variant="dark">
                 <Nav className="mr-auto">
-                    <Link to="/">Home</Link>
+                    <Link to="/home">Home</Link>
                 </Nav>
                 <Nav className="mr-auto">
-                {manoBilietaiLink}
+                {myStuffLink}
                 </Nav>
                 {loginlogout}
             </Navbar>
